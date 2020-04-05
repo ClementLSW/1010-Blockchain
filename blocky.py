@@ -87,11 +87,17 @@ class Blockchain(object):
     # Create a new block listing key/value pairs of block information in a JSON object. Reset the list of pending transactions & append the newest block to the chain.
 
     def new_block(self, data, previous_hash=None):
+        unhashedblock = {
+            'index': len(self.chain) + 1,
+            'timestamp': time(),
+            'data': data,
+            'previous_hash': previous_hash or self.hash(self.chain[-1]),
+        }
         block = {
             'index': len(self.chain) + 1,
             'timestamp': time(),
             'data': data,
-            'hashVal': hash(self),
+            'hashVal': hash(json.dumps(unhashedblock, sort_keys=True)),
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
         }
         self.pending_transactions = []
@@ -146,15 +152,15 @@ def main():
 
     while(exit == False):
         command = input("What would you like to do?\nEnter the corresponding number\n\n1. Add new block\n2. Sync all blocks\n3. Query latest block\n4. Query timestamp of block\n5. Exit\n\n")
-        if(command == 1):
+        if(command == "1"):
             inData = input("What data would you like to store? ")
             Blockchain.new_block(data=inData)
             # Code to sync blockchain amongst nodes
-        elif(command == 2):
+        elif(command == "2"):
             Blockchain.new_block()
-        elif command == 3:
+        elif command == "3":
             Blockchain.last_block()
-        elif command == 4:
+        elif command == "4":
              # Code to retrieve timestamp by index
             Blockchain.new_block(data=time())
 
