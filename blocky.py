@@ -20,19 +20,17 @@ class Client(threading.Thread):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind((self.host, self.port))
         sock.listen(10)
+        full_message = ""
         while True:
             connection, client_address = sock.accept()
             try:
-                full_message = ""
+                blockchain = Blockchain()
                 while True:
                     data = connection.recv(9000)
-                    #full_message = full_message + data.decode(ENCODING)
-                    jsonfile = data.decode()
-                    data = json.loads(jsonfile)
-                    blockchain = data.get("chain")
+                    full_message = full_message + data.decode(ENCODING)
+                    blockchain.chain.append(full_message)
                     if not data:
-                        print(blockchain)
-                        #print("{}: {}".format(client_address, full_message.strip()))
+                        print("{}: {}".format(client_address, blockchain.chain))
                         break
             finally:
                 connection.shutdown(2)
@@ -53,26 +51,24 @@ class Server(threading.Thread):
 
     def run(self):
         while True:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((self.host, self.port))
+            #message = input("")
             blockchain = Blockchain()
             name = input("What is your name? ")
             t1 = blockchain.new_transaction(name)
             blockchain.new_block(12345)
-            data = json.dumps({"chain": blockchain.chain})
-            s.sendall(data.encode())
-            #s.sendall(message.encode(ENCODING))
+            data = blockchain.chain
+            print(blockchain.chain)
+            chainstr = json.dumps(data, indent=4)
+            message = chainstr
+            blockchain.chain.append(message)
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((self.host, self.port))
+            s.sendall(message.encode(ENCODING))
             s.shutdown(2)
             s.close()
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((self.host1, self.port1))
-            blockchain = Blockchain()
-            name = input("What is your name? ")
-            t1 = blockchain.new_transaction(name)
-            blockchain.new_block(12345)
-            data = json.dumps({"chain": blockchain.chain})
-            s.sendall(data.encode())
-            #s.sendall(message.encode(ENCODING))
+            s.sendall(message.encode(ENCODING))
             s.shutdown(2)
             s.close()
 
@@ -81,28 +77,22 @@ class Blockchain(object):
     def __init__(self):
         self.chain = []
         self.pending_transactions = []
-        self.new_block(data ="Genesis", previous_hash="asda")
+
+        self.new_block(previous_hash="asda",
+                       proof=69)
 
     # Create a new block listing key/value pairs of block information in a JSON object. Reset the list of pending transactions & append the newest block to the chain.
 
-    def new_block(self, data, previous_hash=None):
-        unhashedblock = {
-            'index': len(self.chain) + 1,
-            'timestamp': time(),
-            'data': data,
-            'previous_hash': previous_hash or self.hash(self.chain[-1]),
-        }
+    def new_block(self, proof, previous_hash=None):
         block = {
             'index': len(self.chain) + 1,
             'timestamp': time(),
-            'data': data,
-            'hash value': hash(json.dumps(unhashedblock, sort_keys=True)),
+            'transactions': self.pending_transactions,
+            'proof': proof,
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
         }
         self.pending_transactions = []
         self.chain.append(block)
-
-        print(block)
 
         return block
 
@@ -114,11 +104,10 @@ class Blockchain(object):
 
     # Add a transaction with relevant info to the 'blockpool' - list of pending tx's.
 
+    #def new_transaction(self, sender, recipient, amount):
     def new_transaction(self, my_name):
         transaction = {
             'name': my_name
-            #'joke': recipient,
-            #'amount': amount
         }
         self.pending_transactions.append(transaction)
         return self.last_block['index'] + 1
@@ -145,27 +134,6 @@ def main():
     port1 = int(input("Second host port: "))
     server = Server(host, port, host1, port1)
     treads = [client.start(), server.start()]
-
-    exit = False
-
-    while exit == False:
-        blockchain = Blockchain()
-        command = input("What would you like to do?\nEnter the corresponding number\n\n1. Add new block\n2. Sync all blocks\n3. Query latest block\n4. Query timestamp of block\n5. Exit\n\n")
-        if command == "1":
-            inData = input("What data would you like to store? ")
-            blockchain.new_block(data=inData)
-            # Code to sync blockchain amongst nodes
-        elif command == "2":
-            blockchain.new_block()
-        elif command == "3":
-            blockchain.last_block()
-        elif command == "4":
-             # Code to retrieve timestamp by index
-            blockchain.new_block(data=time())
-
-        elif command == 5:
-            exit = True
-
 
 if __name__ == '__main__':
     main()
