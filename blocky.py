@@ -81,8 +81,8 @@ class Blockchain(object):
         self.chain = []
         self.pending_transactions = []
 
-        self.new_block(previous_hash="asda",
-                       proof=69)
+        self.new_block(data ="Genesis",
+                       previous_hash="asda")
 
     # Create a new block listing key/value pairs of block information in a JSON object. Reset the list of pending transactions & append the newest block to the chain.
 
@@ -91,7 +91,7 @@ class Blockchain(object):
             'index': len(self.chain) + 1,
             'timestamp': time(),
             'data': data,
-            'hashVal': hash(self.block),
+            'hashVal': hash(self),
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
         }
         self.pending_transactions = []
@@ -142,19 +142,22 @@ def main():
     server = Server(host, port, host1, port1)
     treads = [client.start(), server.start()]
 
-    exit = false
+    exit = False
 
-    while(!exit):
+    while(exit == False):
         command = input("What would you like to do?\nEnter the corresponding number\n\n1. Add new block\n2. Sync all blocks\n3. Query latest block\n4. Query timestamp of block\n5. Exit\n\n")
         if(command == 1):
             inData = input("What data would you like to store? ")
-            new_block(data = inData)
-        elif(command == 2):
+            Blockchain.new_block(data=inData)
             # Code to sync blockchain amongst nodes
+        elif(command == 2):
+            Blockchain.new_block()
         elif command == 3:
-            last_block()
+            Blockchain.last_block()
         elif command == 4:
-            # Code to retrieve timestamp by index
+             # Code to retrieve timestamp by index
+            Blockchain.new_block(data=time())
+
         elif command == 5:
             exit = True
 
