@@ -86,16 +86,19 @@ class Blockchain(object):
 
     # Create a new block listing key/value pairs of block information in a JSON object. Reset the list of pending transactions & append the newest block to the chain.
 
-    def new_block(self, proof, previous_hash=None):
+    def new_block(self, data, previous_hash=None):
         block = {
             'index': len(self.chain) + 1,
             'timestamp': time(),
-            'transactions': self.pending_transactions,
-            'proof': proof,
+            'data': data,
+            'hashVal': hash(self.block),
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
         }
         self.pending_transactions = []
         self.chain.append(block)
+
+        print("Index: %s\nTimestamp: %s\nData: %s\nHash Value: %s\nPrevious Hash: %s" % (self.block.index, self.block.timestamp, self.block.data,
+        self.block.hashVal, self.block.previous_hash))
 
         return block
 
@@ -138,6 +141,22 @@ def main():
     port1 = int(input("Second host port: "))
     server = Server(host, port, host1, port1)
     treads = [client.start(), server.start()]
+
+    exit = false
+
+    while(!exit):
+        command = input("What would you like to do?\nEnter the corresponding number\n\n1. Add new block\n2. Sync all blocks\n3. Query latest block\n4. Query timestamp of block\n5. Exit\n\n")
+        if(command == 1):
+            inData = input("What data would you like to store? ")
+            new_block(data = inData)
+        elif(command == 2):
+            # Code to sync blockchain amongst nodes
+        elif command == 3:
+            last_block()
+        elif command == 4:
+            # Code to retrieve timestamp by index
+        elif command == 5:
+            exit = True
 
 
 if __name__ == '__main__':
