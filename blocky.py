@@ -27,7 +27,8 @@ class Client(threading.Thread):
                 while True:
                     data = connection.recv(9000)
                     #full_message = full_message + data.decode(ENCODING)
-                    data = json.loads(data.decode())
+                    jsonfile = data.decode()
+                    data = json.loads(jsonfile)
                     blockchain = data.get("chain")
                     if not data:
                         print(blockchain)
@@ -80,9 +81,7 @@ class Blockchain(object):
     def __init__(self):
         self.chain = []
         self.pending_transactions = []
-
-        self.new_block(data ="Genesis",
-                       previous_hash="asda")
+        self.new_block(data ="Genesis", previous_hash="asda")
 
     # Create a new block listing key/value pairs of block information in a JSON object. Reset the list of pending transactions & append the newest block to the chain.
 
@@ -149,19 +148,20 @@ def main():
 
     exit = False
 
-    while(exit == False):
+    while exit == False:
+        blockchain = Blockchain()
         command = input("What would you like to do?\nEnter the corresponding number\n\n1. Add new block\n2. Sync all blocks\n3. Query latest block\n4. Query timestamp of block\n5. Exit\n\n")
-        if(command == "1"):
+        if command == "1":
             inData = input("What data would you like to store? ")
-            Blockchain.new_block(data=inData)
+            blockchain.new_block(data=inData)
             # Code to sync blockchain amongst nodes
-        elif(command == "2"):
-            Blockchain.new_block()
+        elif command == "2":
+            blockchain.new_block()
         elif command == "3":
-            Blockchain.last_block()
+            blockchain.last_block()
         elif command == "4":
              # Code to retrieve timestamp by index
-            Blockchain.new_block(data=time())
+            blockchain.new_block(data=time())
 
         elif command == 5:
             exit = True
