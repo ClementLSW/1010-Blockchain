@@ -97,14 +97,13 @@ class Blockchain(object):
             'index': len(self.chain) + 1,
             'timestamp': time(),
             'data': data,
-            'hashVal': hash(json.dumps(unhashedblock, sort_keys=True)),
+            'hash value': hash(json.dumps(unhashedblock, sort_keys=True)),
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
         }
         self.pending_transactions = []
         self.chain.append(block)
 
-        print("Index: %s\nTimestamp: %s\nData: %s\nHash Value: %s\nPrevious Hash: %s" % (self.block.index, self.block.timestamp, self.block.data,
-        self.block.hashVal, self.block.previous_hash))
+        print(block)
 
         return block
 
